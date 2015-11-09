@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="polls">
+	<title>Polls</title>
+	<summary>This mod allows you to display some Polls on your Subrion CMS powered website.</summary>
+	<author>Intelliants LLC</author>
+	<contributor>Intelliants LLC</contributor>
+	<version>2.3.3</version>
+	<date>2013-04-15</date>
+	<compatibility>2.3.6</compatibility>
+
+	<adminpages>
+		<page name="polls" url="polls/" filename="index" menus="menu">Polls</page>
+		<page name="poll_add" url="polls/add/" action="add" filename="index" parent="polls">Add Poll</page>
+		<page name="poll_edit" url="polls/edit/" action="edit" filename="index" parent="polls">Edit Poll</page>
+	</adminpages>
+
+	<actions>
+		<action name="polls_view" url="polls/" icon="list" order="1" pages="poll_edit,poll_add">View</action>
+		<action name="poll_add" url="polls/add/" icon="plus" order="2" pages="polls">Add</action>
+	</actions>
+
+	<config group="miscellaneous" name="polls" type="divider" description="Polls Configuration">Polls Configuration</config>
+	<config group="miscellaneous" name="polls_count" type="text" private="0" description="Number of polls in a block">1</config>
+    <config group="miscellaneous" name="polls_count_page" type="text" private="0" description="Number of polls on a page">10</config>
+	<config group="miscellaneous" name="polls_google_chart" type="radio" values="0,1" private="0" description="Use Google Pie Chart">1</config>
+	<config group="miscellaneous" name="polls_rand" type="radio" values="0,1" private="0" description="Randomly rotate polls in a block">0</config>
+
+	<pages>
+		<page url="poll/" nofollow="1" name="poll" filename="index">Poll</page>
+		<page url="polls/" name="polls" filename="polls">Polls</page>
+	</pages>
+
+	<permissions>
+		<object meta_object="admin_page" id="polls" action="add" access="1">Add Polls</object>
+		<object meta_object="admin_page" id="polls" action="edit" access="1">Edit Polls</object>
+	</permissions>
+
+	<phrases>
+		<phrase category="admin" key="add_option">Add Option</phrase>
+		<phrase category="admin" key="add_poll">Add Poll</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_poll">Are you sure you want to delete this Poll</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_polls">Are you sure you want to delete selected Polls</phrase>
+		<phrase category="admin" key="edit_poll">Edit Poll</phrase>
+		<phrase category="admin" key="error_poll_expire_date_less">Poll expiration date can not be older than a start date.</phrase>
+		<phrase category="admin" key="error_poll_options_required">You should have at least 2 unique poll options.</phrase>
+		<phrase category="admin" key="have_vote">Options have votes in database.</phrase>
+		<phrase category="admin" key="new_options">New options.</phrase>
+		<phrase category="admin" key="no_polls">No polls created.</phrase>
+		<phrase category="admin" key="poll_added">New poll has been created.</phrase>
+		<phrase category="admin" key="poll_options">Options</phrase>
+		<phrase category="admin" key="poll_title_empty">Poll title is empty! Please fill field.</phrase>
+		<phrase category="admin" key="poll_updated">The poll has been updated.</phrase>
+		
+		<phrase category="common" key="expire_date">Expire date</phrase>
+		<phrase category="common" key="no_polls">No polls have been created by administrator.</phrase>
+		<phrase category="common" key="poll">Poll</phrase>
+		<phrase category="common" key="polls">Polls</phrase>
+		<phrase category="common" key="start_date">Start Date</phrase>
+
+		<phrase category="frontend" key="show_polls">Show all polls</phrase>
+		<phrase category="frontend" key="total_votes">Total &lt;b&gt;{num}&lt;/b&gt; votes</phrase>
+	</phrases>
+
+	<blocks>
+		<block title="Polls" name="polls" collapsible="1" position="left" type="smarty">
+			<![CDATA[
+{if isset($polls) && !empty($polls)}
+	<div class="items">
+		{foreach from=$polls item=poll name='iter_poll'}
+			<div class="polls item">
+				<p class="poll-title">{$poll.title}</p>
+				{if $poll.alreadyVoted}
+					{$poll.results}
+				{else}
+					<ul id="poll-{$poll.id}" class="poll-options unstyled">
+						{foreach from=$poll.options item=option}
+							<li>
+								<label for="poll-option-{$poll.id}-{$option.id}" class="poll-option clearfix">
+									<input type="radio" id="poll-option-{$poll.id}-{$option.id}" value="0" name="poll_option_{$poll.id}" />
+									{$option.title}
+								</label>
+							</li>
+						{/foreach}
+					</ul>
+				{/if}
+			</div>
+		{/foreach}
+	</div>
+	<div class="info c"><a href="{$smarty.const.IA_URL}polls/">{lang key='show_polls'}</a></div>
+	{ia_print_js files='_IA_URL_plugins/polls/js/frontend/index'}
+	{ia_print_css files='_IA_URL_plugins/polls/templates/front/css/block'}
+{/if}
+			]]></block>
+	</blocks>
+
+	<hooks>
+		<hook name="phpCoreBeforePageDisplay" type="php" page_type="front" filename="plugins/polls/includes/hook.php"><![CDATA[]]></hook>
+	</hooks>
+
+	<install>
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}poll_clicks` (
+	`id` int(8) NOT NULL auto_increment,
+	`poll_id` mediumint(7) unsigned NOT NULL,
+	`ip` bigint(12) NOT NULL,
+	`date` date NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `POLL` (`poll_id`),
+	KEY `IP` (`ip`)
+) {mysql_version};
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}poll_options` (
+	`id` int(10) unsigned NOT NULL auto_increment,
+	`poll_id` mediumint(7) unsigned NOT NULL,
+	`title` varchar(50) NOT NULL,
+	`votes` int(10) unsigned NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `POLL` (`poll_id`)
+) {mysql_version};
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}polls_categories` (
+	`id` mediumint(8) unsigned NOT NULL auto_increment,
+	`poll_id` mediumint(7) unsigned NOT NULL,
+	`category_id` mediumint(8) unsigned NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `poll_id` (`poll_id`),
+	KEY `category_id` (`category_id`)
+) {mysql_version};
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}polls` (
+	`id` mediumint(7) unsigned NOT NULL auto_increment,
+	`title` varchar(50) NOT NULL,
+	`lang` varchar(25) NOT NULL,
+	`status` enum('inactive', 'active') NOT NULL default 'inactive',
+	`date` date NOT NULL,
+	`expires` date NOT NULL,
+	`recursive` char(1) NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `LANG` (`lang`)
+) {mysql_version};
+			]]>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<![CDATA[
+DROP TABLE IF EXISTS `{prefix}poll_clicks`;
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+DROP TABLE IF EXISTS `{prefix}poll_options`;
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+DROP TABLE IF EXISTS `{prefix}polls_categories`;
+			]]>
+		</sql>
+		<sql>
+			<![CDATA[
+DROP TABLE IF EXISTS `{prefix}polls`;
+			]]>
+		</sql>
+	</uninstall>
+</plugin>
