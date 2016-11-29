@@ -1,170 +1,124 @@
 <?php
-//##copyright##
+/******************************************************************************
+ *
+ * Subrion - open source content management system
+ * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ *
+ * This file is part of Subrion.
+ *
+ * Subrion is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Subrion is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * @package Subrion\Plugin\PersonalBlog\Admin
+ * @link http://www.subrion.org/
+ * @author https://intelliants.com/ <support@subrion.org>
+ * @license http://www.subrion.org/license.html
+ *
+ ******************************************************************************/
 
-$iaPolls = $iaCore->factoryPlugin('polls', 'admin', 'polls');
-
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
+class iaBackendController extends iaAbstractControllerPluginBackend
 {
-	if (isset($_GET['action']))
+	protected $_name = 'polls';
+
+	protected $_table = 'polls';
+	protected $_tableOptions = 'poll_options';
+	protected $_tableBlogEntriesTags = 'blog_entries_tags';
+
+	protected $_pluginName = 'polls';
+
+	protected $_gridColumns = array('id', 'title', 'date_start', 'date_expire', 'status');
+	protected $_gridFilters = array('status' => self::EQUAL, 'title' => self::LIKE);
+
+	protected $_phraseAddSuccess = 'poll_added';
+	protected $_phraseEditSuccess = 'poll_updated';
+
+
+	public function __construct()
 	{
-		$out = array('data' => '', 'total' => 0);
+		parent::__construct();
 
-		if ('get' == $_GET['action'])
-		{
-			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-			$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-			$order = '';
-
-			$sort = $_GET['sort'];
-			$dir = in_array($_GET['dir'], array('ASC', 'DESC')) ? $_GET['dir'] : 'ASC';
-
-			if ($sort && $dir)
-			{
-				$order = "ORDER BY `{$sort}` {$dir}";
-			}
-
-			$out['total'] = $iaDb->one(iaDb::STMT_COUNT_ROWS, null, $iaPolls->getTable());
-			$out['data'] = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "1=1 {$order}", $start, $limit, $iaPolls->getTable());
-
-			function remove_btn($item)
-			{
-				$item['remove'] = 1;
-				$item['edit'] = 1;
-
-				return $item;
-			}
-			$out['data'] = array_map('remove_btn', $out['data']);
-		}
-
-		$iaView->assign($out);
+		$this->setHelper($this->_iaCore->factoryPlugin($this->getPluginName(), iaCore::ADMIN, $this->getName()));
 	}
 
-	// process default actions
-	if (isset($_POST['action']))
+	protected function _indexPage(&$iaView)
 	{
-		$out = array('msg' => 'Unknown error', 'error' => true);
-		$where = '';
-
-		if ('update' == $_POST['action'])
-		{
-			$result = $iaDb->update(array($_POST['field'] => $_POST['value']), "`id` IN('" . implode("','", $_POST['ids']) . "')", null, $iaPolls->getTable());
-
-			if ($result)
-			{
-				$out['error'] = false;
-				$out['msg'] = iaLanguage::get('changes_saved');
-			}
-			else
-			{
-				$out['error'] = true;
-				$out['msg'] = $_SESSION['error'];
-			}
-		}
-
-		if ('remove' == $_POST['action'])
-		{
-			$result = $iaPolls->delete("`id` IN('" . implode("','", $_POST['ids']) . "')");
-
-			if ($result)
-			{
-				$out['error'] = false;
-				$out['msg'] = iaLanguage::get('poll') . ' ' . iaLanguage::get('deleted');
-			}
-			else
-			{
-				$out['error'] = true;
-				$out['msg'] = $iaPolls->message;
-			}
-		}
-
-		$iaView->assign($out);
+		$iaView->grid('_IA_URL_plugins/' . $this->getPluginName() . '/js/admin/index');
 	}
-}
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	if (in_array($pageAction, array(iaCore::ACTION_ADD, iaCore::ACTION_EDIT)))
+	protected function _setPageTitle(&$iaView)
 	{
-		$error = false;
-		$messages = array();
-		$options = array();
-		// edit and add
-		$form = array(
-			'id'			=> isset($_GET['id']) ? (int)$_GET['id'] : 0,
-			'title'			=> '',
-			'expire_date'	=> date(iaDb::DATE_FORMAT, time() + 7 * 24 * 60 * 60),
-			'start_date'	=> date(iaDb::DATE_FORMAT),
-			'status'		=> iaCore::STATUS_INACTIVE,
-			'recursive'		=> 0,
-			'language'		=> 'en',
-			'options'		=> array(),
-			'newoptions'	=> array()
-		);
-
-		if ($pageAction == 'edit')
+		if (in_array($iaView->get('action'), array(iaCore::ACTION_ADD, iaCore::ACTION_EDIT)))
 		{
-			$poll_id = (int)$_GET['id'];
+			$iaView->title(iaLanguage::get($iaView->get('action') . '_poll'));
+		}
+	}
 
-			$rows = $iaPolls->row(iaDb::ALL_COLUMNS_SELECTION, "`id` = " . $poll_id . ' ORDER BY `id`');
+	protected function _setDefaultValues(array &$entry)
+	{
+		$entry['title'] = '';
+		$entry['date_expire'] = date(iaDb::DATE_FORMAT, time() + 7 * 24 * 60 * 60);
+		$entry['date_start'] = date(iaDb::DATE_FORMAT);
+		$entry['status'] = iaCore::STATUS_ACTIVE;
+		$entry['lang'] = $this->_iaCore->iaView->language;
+	}
 
-			$form['language'] = $rows['lang'];
-			$form['title'] = $rows['title'];
-			$form['status'] = $rows['status'];
-			$form['recursive'] = $rows['recursive'];
+	protected function _entryDelete($id)
+	{
+		return (bool)$this->getHelper()->delete($id);
+	}
 
-			foreach($rows['options'] as $key => $val)
-			{
-				$form['options'][$val['id']] = $val['title'];
-				$options[$val['id']] = $val['title'];
-			}
-			$date = explode(' ', $rows['date']);
-			$form['start_date'] = $date[0];
+	protected function _preSaveEntry(array &$entry, array $data, $action)
+	{
+		parent::_preSaveEntry($entry, $data, $action);
 
-			$date = explode(' ', $rows['expires']);
-			$form['expire_date'] = $date[0];
+		iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
+
+		if (!utf8_is_valid($data['title']))
+		{
+			$data['title'] = utf8_bad_replace($data['title']);
+		}
+		if (empty($data['title']))
+		{
+			$this->addMessage('title_is_empty');
 		}
 
-		if (isset($_POST['send']))
+		if (empty($data['date_start']))
 		{
-			if (isset($_POST['language']) && isset($iaCore->languages[$_POST['language']]))
-			{
-				$form['language'] = $_POST['language'];
-			}
+			$data['date_start'] = date(iaDb::DATETIME_FORMAT);
+		}
 
-			// Check title
-			if (isset($_POST['title']) && trim($_POST['title']) != '')
-			{
-				$form['title'] = $_POST['title'];
-			}
-			else
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('poll_title_empty');
-			}
-
-			// Check status
-			if (isset($_POST['status']) && in_array($_POST['status'], array(iaCore::STATUS_ACTIVE, iaCore::STATUS_INACTIVE)))
-			{
-				$form['status'] = $_POST['status'];
-			}
-
-			// Check expires
-			list($y, $m, $d) = explode('-', $_POST['expire_date']);
-			$m	= (int)$m;
-			$d	= (int)$d;
-			$y	= (int)$y;
+		if (empty($data['date_expire']))
+		{
+			$this->addMessage(iaLanguage::getf('field_empty', array('field' => iaLanguage::get('date_expire'))));
+		}
+		else
+		{
+			list($y, $m, $d) = explode('-', $data['date_expire']);
+			$m = (int)$m;
+			$d = (int)$d;
+			$y = (int)$y;
 			$end_date = 0;
 			if (checkdate($m, $d, $y))
 			{
-				$form['expire_date'] = $y . '-' . $m . '-' . $d;
+				$item['date_expire'] = $y . '-' . $m . '-' . $d;
 				$end_date = mktime(0, 0, 0, $m, $d, $y);
 			}
 
-			// Check stardate
-			list($y, $m, $d) = explode('-', $_POST['start_date']);
-			$m	= (int)$m;
-			$d	= (int)$d;
-			$y	= (int)$y;
+			list($y, $m, $d) = explode('-', $data['date_start']);
+			$m = (int)$m;
+			$d = (int)$d;
+			$y = (int)$y;
 			if (checkdate($m, $d, $y))
 			{
 				$form['start_date'] = $y . '-' . $m . '-' . $d;
@@ -172,129 +126,100 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 
 			if (mktime(0, 0, 0, $m, $d, $y) > $end_date)
 			{
-				$error = true;
-				$messages[] = iaLanguage::get('error_poll_expire_date_less');
-			}
-
-			$count = 0;
-			if ($pageAction == 'edit')
-			{
-				// Check OLD options
-				if (empty($_POST['options']) || !is_array($_POST['options']))
-				{
-					$error = true;
-					$messages[] = iaLanguage::get('error_poll_options_required');
-				}
-				else
-				{
-					$form['options'] = array_map('trim', $_POST['options']);
-					$form['options'] = array_unique($form['options']);
-					$count = count($form['options']);
-					foreach($options as $i => $val)
-					{
-						if (!isset($form['options'][$i]))
-						{
-							$form['options'][$i] = '';
-							$count--;
-							continue;
-						}
-						$form['options'][$i] = $form['options'][$i];
-					}
-				}
-			}
-
-			// Check NEW options
-			if (empty($_POST['newoptions']) || !is_array($_POST['newoptions']))
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('error_poll_options_required');
-			}
-			else
-			{
-				$form['newoptions'] = array_map('trim', $_POST['newoptions']);
-				$form['newoptions'] = array_unique($form['newoptions']);
-				foreach($form['newoptions'] as $i => $val)
-				{
-					if (empty($val))
-					{
-						unset($form['newoptions'][$i]);
-						continue;
-					}
-					$form['newoptions'][$i] = $form['newoptions'][$i];
-				}
-				if (count($form['newoptions']) + $count < 2)
-				{
-					$error = true;
-					$messages[] = iaLanguage::get('error_poll_options_required');
-				}
-			}
-			$recursive = isset($_POST['recursive']) ? 1 : 0;
-
-			if (!$error)
-			{
-				if ($pageAction == 'edit')
-				{
-					$form['id'] = $poll_id;
-					$iaPolls->update($form, "`id` = '" . $poll_id . "'");
-					$iaView->setMessages(iaLanguage::get('poll_updated'), iaView::SUCCESS);
-
-					// get new values from database
-					unset($form);
-					$rows = $iaPolls->row(iaDb::ALL_COLUMNS_SELECTION, "`id` = " . $poll_id . ' ORDER BY `id`');
-					$form['language']	= $rows['lang'];
-					$form['title']		= $rows['title'];
-					$form['status']		= $rows['status'];
-					$form['recursive']	= $rows['recursive'];
-					$form['newoptions']	= array();
-
-					foreach($rows['options'] as $key => $val)
-					{
-						$form['options'][$val['id']] = $val['title'];
-					}
-					$date = explode(' ', $rows['date']);
-					$form['start_date'] = $date[0];
-
-					$date = explode(' ', $rows['expires']);
-					$form['expire_date'] = $date[0];
-
-				}
-				else
-				{
-					$poll_id = $iaPolls->insert($form);
-					$iaView->setMessages(iaLanguage::get('poll_added'), iaView::SUCCESS);
-				}
-
-				iaCore::util();
-				if (isset($_POST['goto']))
-				{
-					$url = IA_ADMIN_URL . 'polls/';
-					iaUtil::post_goto(array(
-						'add' => $url . 'add/',
-						'list' => $url,
-						'stay' => $url . 'edit/' . $poll_id . '/',
-					));
-				}
-				else
-				{
-					iaUtil::go_to(IA_ADMIN_URL . 'polls/edit/' . $poll_id . '/');
-				}
-			}
-			else
-			{
-				$iaView->setMessages($messages);
+				$this->addMessage('error_poll_expire_date_less');
 			}
 		}
-		$iaView->assign('form', $form);
 
-		$title = iaLanguage::get($pageAction . '_poll');
-		$iaView->title($title);
+		$data['newoptions'] = isset($data['newoptions']) ? $this->_checkOptions($data['newoptions']) : array();
+		$data['options'] = isset($data['options']) ? $this->_checkOptions($data['options']) : array();
 
-		iaBreadcrumb::add($title, IA_SELF);
+		if (1 >= count(array_merge($data['newoptions'], $data['options'])))
+		{
+			$this->addMessage('error_poll_options_required');
+		}
+		unset($entry['options'], $entry['newoptions']);
 
-		$iaView->display('polls');
+		return !$this->getMessages();
 	}
-	else
+
+	private function _checkOptions($options)
 	{
-		$iaView->grid('_IA_URL_plugins/polls/js/admin/grid');
+		if (empty($options) || !is_array($options))
+		{
+			return array();
+		}
+
+		$options = array_unique($options);
+		foreach ($options as $key => &$option)
+		{
+			$option = utf8_bad_replace($option);
+			if (empty($options[$key]))
+			{
+				unset($options[$key]);
+			}
+		}
+
+		return $options;
+	}
+
+	private function _saveOptions($options, $newOptions, $action)
+	{
+		$this->_iaDb->setTable($this->_tableOptions);
+		if (iaCore::ACTION_EDIT == $action)
+		{
+			if ($oldOptions = $this->getHelper()->getOptions($this->getEntryId()))
+			{
+				$diff = array_keys(array_diff($oldOptions, array_filter($options)));
+				empty($diff) || $this->_iaDb->query(iaDb::printf('DELETE FROM :table WHERE `id` IN (:ids)',
+					array('table' => $this->_iaDb->prefix . $this->_tableOptions, 'ids' => implode(',', $diff))));
+			}
+			if ($options)
+			{
+				foreach ($options as $id => $option)
+				{
+					empty($option) || $this->_iaDb->update($option, iaDb::convertIds($id, 'poll_id'));
+				}
+			}
+		}
+		if ($newOptions)
+		{
+			foreach ($newOptions as $option)
+			{
+				empty($option) || $this->_iaDb->insert(array('poll_id' => $this->getEntryId(), 'votes' => 0, 'title' => $option));
+			}
+		}
+	}
+
+	protected function _postSaveEntry(array &$entry, array $data, $action)
+	{
+		$options = isset($data['options']) && is_array($data['options']) ? array_unique($data['options']) : array();
+		$newoptions = isset($data['newoptions']) && is_array($data['newoptions']) ? array_unique($data['newoptions']) : array();
+		$this->_saveOptions($options, $newoptions, $action);
+
+		$iaLog = $this->_iaCore->factory('log');
+
+		$actionCode = (iaCore::ACTION_ADD == $action)
+			? iaLog::ACTION_CREATE
+			: iaLog::ACTION_UPDATE;
+		$params = array(
+			'module' => 'polls',
+			'item' => 'polls',
+			'name' => $entry['title'],
+			'id' => $this->getEntryId(),
+		);
+
+		$iaLog->write($actionCode, $params);
+	}
+
+	protected function _assignValues(&$iaView, array &$entryData)
+	{
+		$options = $this->getHelper()->getOptions($this->getEntryId());
+		$newOptions = array();
+		if (iaCore::ACTION_ADD == $iaView->get('action') && isset($_POST['newoptions']) && is_array($_POST['newoptions']))
+		{
+			$newOptions = array_filter($_POST['newoptions']);
+		}
+		$iaView->assign('options', $options);
+		$iaView->assign('newoptions', $newOptions);
 	}
 }

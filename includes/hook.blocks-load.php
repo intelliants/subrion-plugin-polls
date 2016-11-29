@@ -20,31 +20,32 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @package Subrion\Plugin\PersonalBlog\Admin
  * @link http://www.subrion.org/
- * @author https://intelliants.com/ <support@subrion.org>
- * @license http://www.subrion.org/license.html
  *
  ******************************************************************************/
 
-class iaPolls extends abstractCore
+if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('polls'))
 {
-	protected static $_table = 'polls';
-	protected $_tableOptions = 'poll_options';
-	protected $_tableClicks = 'poll_clicks';
+	$iaPolls = $iaCore->factoryPlugin('polls', iaCore::FRONT, 'polls');
 
+	$polls = $iaPolls->getPolls(0, $iaCore->get('polls_count'));
+	$ip = $iaCore->util()->getIp();
 
-	public function getOptions($id)
+	if ($polls)
 	{
-		return $this->iaDb->keyvalue(array('id', 'title'), iaDb::convertIds($id, 'poll_id') . ' ORDER BY `id`', $this->_tableOptions);
-	}
+		foreach ($polls as $k => $p)
+		{
+			$polls[$k]['options'] = $iaPolls->getOptions($p['id']);
+			$polls[$k]['alreadyVoted'] = false;
+			if ($iaPolls->isVoted($p['id'], $ip))
+			{
+				$polls[$k]['results'] = $iaPolls->printPollResults($polls[$k]['options']);
+				unset($polls[$k]['options']);
 
-	public function delete($id)
-	{
-		$this->iaDb->delete(iaDb::convertIds($id), self::getTable());
-		$this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableOptions);
-		$this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableClicks);
+				$polls[$k]['alreadyVoted'] = true;
+			}
+		}
 
-		return true;
+		$iaView->assign('block_polls', $polls);
 	}
 }

@@ -1,34 +1,68 @@
 Ext.onReady(function()
 {
-	if(Ext.get('expire_date'))
-	{		
-		new Ext.form.DateField(
+	var grid = new IntelliGrid(
 		{
-			allowBlank: false,
-			format: 'Y-m-d',
-			applyTo: 'expire_date'
-		});
-	}
-	
-	if(Ext.get('start_date'))
-	{		
-		new Ext.form.DateField(
+			columns: [
+				'selection',
+				{name: 'title', title: _t('title'), width: 2, editor: 'text'},
+				{name: 'date_start', title: _t('date_start'), width: 120, editor: 'date'},
+				{name: 'date_expire', title: _t('date_expire'), width: 120, editor: 'date'},
+				'status',
+				'update',
+				'delete'
+			],
+			sorters: [{property: 'date_added', direction: 'DESC'}]
+		}, false);
+
+	grid.toolbar = Ext.create('Ext.Toolbar', {items:[
 		{
-			allowBlank: false,
-			format: 'Y-m-d',
-			applyTo: 'start_date'
-		});
+			emptyText: _t('title'),
+			name: 'title',
+			listeners: intelli.gridHelper.listener.specialKey,
+			width: 275,
+			xtype: 'textfield'
+		},{
+			displayField: 'title',
+			editable: false,
+			emptyText: _t('status'),
+			id: 'fltStatus',
+			name: 'status',
+			store: grid.stores.statuses,
+			typeAhead: true,
+			valueField: 'value',
+			xtype: 'combo'
+		},{
+			handler: function(){intelli.gridHelper.search(grid);},
+			id: 'fltBtn',
+			text: '<i class="i-search"></i> ' + _t('search')
+		},{
+			handler: function(){intelli.gridHelper.search(grid, true);},
+			text: '<i class="i-close"></i> ' + _t('reset')
+		}]});
+	grid.init();
+
+	var searchStatus = intelli.urlVal('status');
+	if (searchStatus)
+	{
+		Ext.getCmp('fltStatus').setValue(searchStatus);
+		intelli.gridHelper.search(grid);
 	}
 });
 
-function option_add()
+$('.js-add-option').click(function()
 {
-	if($('#add_option'))
+	var $this = $(this);
+	var thisParent = $this.closest('.input-group');
+	var clone = thisParent.clone(true);
+	$('input', clone).val('');
+	$('input', clone).attr('name', 'newoptions[]');
+	thisParent.after(clone);
+});
+
+$('.js-remove-option').click(function()
+{
+	if (1 < $(this).closest('.row-options').children().length)
 	{
-		$('#add_option').clone(true).css('display', 'block').attr('id', '').insertBefore('#add_option');
+		$(this).closest('.input-group').remove();
 	}
-}
-function option_remove(item)
-{
-	$(item).parent().remove();
-}
+});
