@@ -37,35 +37,35 @@
 			<div class="row">
 				<label class="col col-lg-2 control-label" for="input-options">{lang key='options'} {lang key='field_required'}</label>
 				<div class="col col-lg-4 row-options">
-					{if $options}
-						{foreach $options as $option => $title}
-							<div class="input-group">
-								<input type="text" class="form-control" placeholder="{lang key='title'}" name="options[{$option}]" maxlength="50" value="{$title}">
-								<div class="input-group-btn">
-									<button type="button" class="js-add-option btn btn-primary"><span class="i-plus"></span></button>
-									<button type="button" class="js-remove-option btn btn-danger"><span class="i-minus"></span></button>
+						{if $options}
+							{foreach $options as $option => $title}
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="{lang key='title'}" name="options[{$option}]" maxlength="50" value="{$title}">
+									<div class="input-group-btn">
+										<button type="button" class="js-add-option btn btn-primary"><span class="i-plus-alt"></span></button>
+										<button type="button" class="js-remove-option btn btn-primary"><span class="i-minus-alt"></span></button>
+									</div>
 								</div>
-							</div>
-						{/foreach}
-					{/if}
-					{if $newoptions}
-						{foreach $newoptions as $option => $title}
-							<div class="input-group">
-								<input type="text" class="form-control" placeholder="{lang key='title'}" name="newoptions[]" maxlength="50" value="{$title}">
-								<div class="input-group-btn">
-									<button type="button" class="js-add-option btn btn-primary"><span class="i-plus"></span></button>
-									<button type="button" class="js-remove-option btn btn-danger"><span class="i-minus"></span></button>
+							{/foreach}
+						{/if}
+						{if $newoptions}
+							{foreach $newoptions as $option => $title}
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="{lang key='title'}" name="newoptions[]" maxlength="50" value="{$title}">
+									<div class="input-group-btn">
+										<button type="button" class="js-add-option btn btn-primary"><span class="i-plus-alt"></span></button>
+										<button type="button" class="js-remove-option btn btn-primary"><span class="i-minus-alt"></span></button>
+									</div>
 								</div>
+							{/foreach}
+						{/if}
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="{lang key='title'}" name="newoptions[]" maxlength="50">
+							<div class="input-group-btn">
+								<button type="button" class="js-add-option btn btn-primary"><span class="i-plus-alt"></span></button>
+								<button type="button" class="js-remove-option btn btn-primary"><span class="i-minus-alt"></span></button>
 							</div>
-						{/foreach}
-					{/if}
-					<div class="input-group">
-						<input type="text" class="form-control" placeholder="{lang key='title'}" name="newoptions[]" maxlength="50">
-						<div class="input-group-btn">
-							<button type="button" class="js-add-option btn btn-primary"><span class="i-plus"></span></button>
-							<button type="button" class="js-remove-option btn btn-danger"><span class="i-minus"></span></button>
 						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -88,3 +88,4 @@
 	</div>
 </form>
 {ia_print_js files="_IA_URL_plugins/polls/js/admin/index"}
+{ia_print_css files='_IA_URL_plugins/polls/templates/admin/css/manage'}

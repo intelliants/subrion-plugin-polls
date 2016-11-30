@@ -1,6 +1,12 @@
 .polls
 {
-	margin-bottom: 10px !important;
+	margin-bottom: 10px;
+}
+
+.polls + .polls {
+	margin-top: 30px;
+	padding-top: 30px;
+	border-top: 1px solid #ddd;
 }
 
 .polls .progress
@@ -12,7 +18,7 @@
 .polls .poll-title
 {
 	font-weight: bold;
-	font-size: 13px;
+	font-size: 15px;
 }
 
 .polls .poll-option

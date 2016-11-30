@@ -7,6 +7,6 @@
 	<span class="title">{$option.title}</span>
 	<div class="progress">
 		<p class="option-result">{$percent|round:1}% ({$option.votes})</p>
-		<div class="progress-bar progress-bar-{$colors.$colorIndex}"" style="width: {$percent|round:1}%"></div>
+		<div class="progress-bar progress-bar-{$colors.$colorIndex}" style="width: {$percent|round:1}%"></div>
 	</div>
 {/foreach}

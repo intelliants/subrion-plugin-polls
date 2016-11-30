@@ -53,7 +53,7 @@
 	</phrases>
 
 	<blocks>
-		<block title="Polls" name="polls" collapsible="1" position="left" type="smarty" filename="block.polls"><![CDATA[]]></block>
+		<block title="Polls" name="polls" collapsible="0" position="left" type="smarty" filename="block.polls"><![CDATA[]]></block>
 	</blocks>
 
 	<hooks>

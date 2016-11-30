@@ -1,6 +1,6 @@
 {if isset($poll) && $poll}
 	<div class="info">
-		<i class="fa fa-calendar"></i> {$poll.date_start|date_format:$core.config.date_format} - {$poll.date_expire|date_format:$core.config.date_format}
+		<span class="fa fa-calendar"></span> {$poll.date_start|date_format:$core.config.date_format} - {$poll.date_expire|date_format:$core.config.date_format}
 	</div>
 
 	<div class="polls">
