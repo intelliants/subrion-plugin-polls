@@ -11,7 +11,7 @@ Ext.onReady(function()
 				'update',
 				'delete'
 			],
-			sorters: [{property: 'date_added', direction: 'DESC'}]
+			sorters: [{property: 'title', direction: 'ASC'}]
 		}, false);
 
 	grid.toolbar = Ext.create('Ext.Toolbar', {items:[
