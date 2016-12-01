@@ -66,3 +66,11 @@ $('.js-remove-option').click(function()
 		$(this).closest('.input-group').remove();
 	}
 });
+if ($().datepicker)
+{
+	$('.js-datepicker-date-only').datepicker(
+	{
+		format: 'yyyy-mm-dd',
+		language: intelli.config.lang
+	});
+}
