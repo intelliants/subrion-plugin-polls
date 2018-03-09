@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,10 +20,7 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @package Subrion\Plugin\PersonalBlog\Admin
- * @link http://www.subrion.org/
- * @author https://intelliants.com/ <support@subrion.org>
- * @license http://www.subrion.org/license.html
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
