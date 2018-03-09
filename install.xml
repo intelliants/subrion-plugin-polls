@@ -48,6 +48,7 @@
 
         <phrase category="common" key="date_expire">Expire date</phrase>
         <phrase category="common" key="date_start">Start Date</phrase>
+        <phrase category="common" key="poll_result">Poll Result</phrase>
         <phrase category="common" key="no_polls">No polls have been created by administrator.</phrase>
         <phrase category="common" key="poll">Poll</phrase>
         <phrase category="common" key="polls">Polls</phrase>

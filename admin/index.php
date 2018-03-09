@@ -45,6 +45,26 @@ class iaBackendController extends iaAbstractControllerModuleBackend
         $this->_path = IA_ADMIN_URL . $this->getModuleName() . IA_URL_DELIMITER;
     }
 
+    protected function _getJsonResults(array $params)
+    {
+        $output = [];
+
+        $sql = <<<SQL
+SELECT * 
+  FROM `:prefix:table_option`  
+WHERE `poll_id` = :id
+SQL;
+        $sql = iaDb::printf($sql, [
+            'prefix' => $this->_iaDb->prefix,
+            'table_option' => $this->_tableOptions,
+            'id' => $params['id']
+        ]);
+
+        $output['result'] = $this->_iaDb->getAll($sql);
+
+        return $output;
+    }
+
     protected function _indexPage(&$iaView)
     {
         $iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/index');
