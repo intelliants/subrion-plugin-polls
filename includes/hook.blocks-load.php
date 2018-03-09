@@ -24,29 +24,25 @@
  *
  ******************************************************************************/
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('polls'))
-{
-	$iaPolls = $iaCore->factoryModule('poll', 'polls');
+if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('polls')) {
+    $iaPolls = $iaCore->factoryModule('poll', 'polls');
 
-	$polls = $iaPolls->getPolls(0, $iaCore->get('polls_count'));
-	$ip = $iaCore->util()->getIp();
+    $polls = $iaPolls->getPolls(0, $iaCore->get('polls_count'));
+    $ip = $iaCore->util()->getIp();
 
-	if ($polls)
-	{
-		foreach ($polls as $k => $p)
-		{
-			$polls[$k]['options'] = $iaPolls->getOptions($p['id']);
-			$polls[$k]['alreadyVoted'] = false;
-			if ($iaPolls->isVoted($p['id'], $ip))
-			{
-				$polls[$k]['results'] = $iaPolls->printPollResults($polls[$k]['options']);
-				unset($polls[$k]['options']);
+    if ($polls) {
+        foreach ($polls as $k => $p) {
+            $polls[$k]['options'] = $iaPolls->getOptions($p['id']);
+            $polls[$k]['alreadyVoted'] = false;
+            if ($iaPolls->isVoted($p['id'], $ip)) {
+                $polls[$k]['results'] = $iaPolls->printPollResults($polls[$k]['options']);
+                unset($polls[$k]['options']);
 
-				$polls[$k]['alreadyVoted'] = true;
-			}
-		}
+                $polls[$k]['alreadyVoted'] = true;
+            }
+        }
 
-		$iaView->assign('block_polls', $polls);
+        $iaView->assign('block_polls', $polls);
         $iaView->add_css('_IA_URL_modules/polls/templates/front/css/block');
-	}
+    }
 }

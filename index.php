@@ -26,82 +26,71 @@
 
 $iaPolls = $iaCore->factoryModule('poll', 'polls');
 
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
-{
-	$optionId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-	$pollId = isset($_GET['poll_id']) ? (int)$_GET['poll_id'] : 0;
+if (iaView::REQUEST_JSON == $iaView->getRequestType()) {
+    $optionId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $pollId = isset($_GET['poll_id']) ? (int)$_GET['poll_id'] : 0;
 
-	if (empty($pollId) || empty($optionId))
-	{
-		return iaView::errorPage(iaView::ERROR_NOT_FOUND);
-	}
+    if (empty($pollId) || empty($optionId)) {
+        return iaView::errorPage(iaView::ERROR_NOT_FOUND);
+    }
+    $affected = false;
 
-	$affected = false;
+    if (!$iaPolls->isVoted($pollId)) {
+        $affected = $iaPolls->addVote($pollId, $optionId);
+    }
 
-	if (!$iaPolls->isVoted($pollId))
-	{
-		$affected = $iaPolls->addVote($pollId, $optionId);
-	}
-
-	if ($affected) // exists
-	{
-		$options  = $iaPolls->getOptions($pollId);
-		$iaView->assign(array('results' => $iaPolls->printPollResults($options)));
-	}
+    if ($affected) // exists
+    {
+        $options = $iaPolls->getOptions($pollId);
+        $iaView->assign(array('results' => $iaPolls->printPollResults($options)));
+    }
 }
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	$id = isset($iaCore->requestPath[0]) && (int)$iaCore->requestPath[0] ? (int)$iaCore->requestPath[0] : 0;
+if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
+    $id = isset($iaCore->requestPath[0]) && (int)$iaCore->requestPath[0] ? (int)$iaCore->requestPath[0] : 0;
 
-	if ($id)
-	{
-		$poll = $iaPolls->getById($id);
-		if (empty($poll))
-		{
-			return iaView::errorPage(iaView::ERROR_NOT_FOUND);
-		}
-		$title = $poll[0]['title'];
+    if ($id) {
+        $poll = $iaPolls->getById($id);
+        if (empty($poll)) {
+            return iaView::errorPage(iaView::ERROR_NOT_FOUND);
+        }
+        $title = $poll[0]['title'];
 
-		iaBreadcrumb::add(iaLanguage::get('polls'), IA_URL . 'polls/');
-		iaBreadcrumb::replaceEnd(iaLanguage::get('poll'), IA_SELF);
+        iaBreadcrumb::add(iaLanguage::get('polls'), IA_URL . 'polls/');
+        iaBreadcrumb::replaceEnd(iaLanguage::get('poll'), IA_SELF);
 
-		$poll['alreadyVoted'] = false;
-		$poll['options'] = $iaPolls->getOptions($id);
+        $poll['alreadyVoted'] = false;
+        $poll['options'] = $iaPolls->getOptions($id);
 
-		if ($iaPolls->isVoted($id))
-		{
-			if (!$iaCore->get('polls_google_chart'))
-			{
-				$poll['results'] = $iaPolls->printPollResults($poll['options']);
-			}
+        if ($iaPolls->isVoted($id)) {
+            if (!$iaCore->get('polls_google_chart')) {
+                $poll['results'] = $iaPolls->printPollResults($poll['options']);
+            }
 
-			$poll['alreadyVoted'] = true;
-		}
+            $poll['alreadyVoted'] = true;
+        }
 
-		$iaView->assign('poll', $poll);
-	}
-	else
-	{
-		$title = iaLanguage::get('polls');
+        $iaView->assign('poll', $poll);
+    } else {
+        $title = iaLanguage::get('polls');
 
-		iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
+        iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
 
-		$page = empty($_GET['page']) ? 0 : (int)$_GET['page'];
-		$page = ($page < 1) ? 1 : $page;
+        $page = empty($_GET['page']) ? 0 : (int)$_GET['page'];
+        $page = ($page < 1) ? 1 : $page;
 
-		$pagination = array(
-			'start' => ($page - 1) * $iaCore->get('polls_count_page'),
-			'limit' => $iaCore->get('polls_count_page'),
-			'template' => 'polls?page={page}',
-		);
-		$polls = $iaPolls->getPolls($pagination['start'], $pagination['limit']);
-		$pagination['total'] = $iaDb->foundRows();
+        $pagination = array(
+            'start' => ($page - 1) * $iaCore->get('polls_count_page'),
+            'limit' => $iaCore->get('polls_count_page'),
+            'template' => 'polls?page={page}',
+        );
+        $polls = $iaPolls->getPolls($pagination['start'], $pagination['limit']);
+        $pagination['total'] = $iaDb->foundRows();
 
-		$iaView->assign('polls', $polls);
-		$iaView->assign('pagination', $pagination);
-	}
+        $iaView->assign('polls', $polls);
+        $iaView->assign('pagination', $pagination);
+    }
 
-	$iaView->title($title);
-	$iaView->display('polls');
+    $iaView->title($title);
+    $iaView->display('polls');
 }

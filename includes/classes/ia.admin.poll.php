@@ -30,8 +30,8 @@
 class iaPoll extends abstractModuleAdmin
 {
     protected static $_table = 'polls';
-	protected $_tableOptions = 'poll_options';
-	protected $_tableClicks = 'poll_clicks';
+    protected $_tableOptions = 'poll_options';
+    protected $_tableClicks = 'poll_clicks';
 
     protected $_itemName = 'poll';
 
@@ -42,16 +42,16 @@ class iaPoll extends abstractModuleAdmin
     public $dashboardStatistics = ['icon' => 'folder', 'url' => 'polls/'];
 
     public function getOptions($id)
-	{
-		return $this->iaDb->keyvalue(array('id', 'title'), iaDb::convertIds($id, 'poll_id') . ' ORDER BY `id`', $this->_tableOptions);
-	}
+    {
+        return $this->iaDb->keyvalue(array('id', 'title'), iaDb::convertIds($id, 'poll_id') . ' ORDER BY `id`', $this->_tableOptions);
+    }
 
     public function delete($id)
-	{
-		$this->iaDb->delete(iaDb::convertIds($id), self::getTable());
-		$this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableOptions);
-		$this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableClicks);
+    {
+        $this->iaDb->delete(iaDb::convertIds($id), self::getTable());
+        $this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableOptions);
+        $this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableClicks);
 
-		return true;
-	}
+        return true;
+    }
 }

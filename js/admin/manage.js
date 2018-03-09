@@ -1,6 +1,4 @@
-
-$('.js-add-option').click(function()
-{
+$('.js-add-option').click(function () {
     var $this = $(this);
     var thisParent = $this.closest('.input-group');
     var clone = thisParent.clone(true);
@@ -9,15 +7,12 @@ $('.js-add-option').click(function()
     thisParent.after(clone);
 });
 
-$('.js-remove-option').click(function()
-{
-    if (1 < $(this).closest('.row-options').children().length)
-    {
+$('.js-remove-option').click(function () {
+    if (1 < $(this).closest('.row-options').children().length) {
         $(this).closest('.input-group').remove();
     }
 });
-if ($().datepicker)
-{
+if ($().datepicker) {
     $('.js-datepicker-date-only').datepicker(
         {
             format: 'yyyy-mm-dd',
