@@ -1,6 +1,6 @@
 {if isset($poll) && $poll}
 	<div class="info">
-		<span class="fa fa-calendar"></span> {$poll.date_start|date_format:$core.config.date_format} - {$poll.date_expire|date_format:$core.config.date_format}
+		<span class="fa fa-calendar"></span> {$poll[0]['date_start']|date_format:$core.config.date_format} - {$poll[0]['date_expire']|date_format:$core.config.date_format}
 	</div>
 
 	<div class="polls">
@@ -30,7 +30,7 @@
 						chart.draw(data, {
 							width: '100%',
 							height: 300,
-							title: '{$poll.title|escape}'
+							title: '{$poll[0]['title']|escape}'
 						});
 					}
 				</script>
@@ -42,11 +42,11 @@
 			<hr>
 			<div class="info c"><a href="{$smarty.const.IA_URL}polls/">{lang key='show_polls'}</a></div>
 		{else}
-			<ul class="js-poll-options poll-{$poll.id}">
+			<ul class="js-poll-options poll-{$poll[0]['id']}">
 			{foreach $poll.options as $option}
 				<li>
-					<label for="poll-option-{$poll.id}-{$option.id}">
-						<input type="radio" id="poll-option-{$poll.id}-{$option.id}" value="0" data-poll-id="{$poll.id}" data-option-id="{$option.id}">
+					<label for="poll-option-{$poll[0]['id']}-{$option.id}">
+						<input type="radio" id="poll-option-{$poll[0]['id']}-{$option.id}" value="0" data-poll-id="{$poll[0]['id']}" data-option-id="{$option.id}">
 						{$option.title}
 					</label>
 				</li>

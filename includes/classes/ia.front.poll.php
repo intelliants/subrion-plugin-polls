@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -24,21 +24,26 @@
  *
  ******************************************************************************/
 
-class iaPolls extends abstractCore
+class iaPoll extends abstractModuleFront
 {
 	protected static $_table = 'polls';
 	protected $_tableOptions = 'poll_options';
 	protected $_tableClicks = 'poll_clicks';
 
+    protected $_itemName = 'poll';
 
 	public function getOptions($id)
 	{
 		return $this->iaDb->all(array('id', 'title', 'votes'), iaDb::convertIds($id, 'poll_id'), 0, null, $this->_tableOptions);
 	}
 
-	public function getById($id)
+	public function getById($id, $decorate = true)
 	{
-		return $this->iaDb->row(iaDb::ALL_COLUMNS_SELECTION, iaDb::convertIds($id), self::getTable());
+        $sql = 'SELECT * FROM ' . self::getTable(true) . '  WHERE  id = '. $id . '' ;
+        $rows = $this->iaDb->getAll($sql);
+        $this->_processValues($rows);
+
+        return $rows;
 	}
 
 	/**
@@ -52,12 +57,18 @@ class iaPolls extends abstractCore
 	public function getPolls($start, $limit)
 	{
 		$rand = $this->iaCore->get('polls_rand', 0);
-		$stmt = 'date_start <= NOW() AND `date_expire` > NOW() AND lang = :lang AND status = :status';
-		$this->iaDb->bind($stmt, array('lang' => $this->iaView->language, 'status' => iaCore::STATUS_ACTIVE));
+		$stmt = 'date_start <= NOW() AND `date_expire` > NOW() AND status = :status';
+		$this->iaDb->bind($stmt, array('status' => iaCore::STATUS_ACTIVE));
 		$order = iaDb::printf(' ORDER BY :order', array('order' => ($rand ? 'RAND()' : 'date_expire DESC')));
 
-		return $this->iaDb->all(iaDb::STMT_CALC_FOUND_ROWS . ' ' . iaDb::ALL_COLUMNS_SELECTION, $stmt . $order, $start, $limit, self::getTable());
-	}
+        $sql = 'SELECT * FROM ' . self::getTable(true) . '  WHERE '. $stmt . $order . ' LIMIT ' . $start . ',' . $limit . '' ;
+        $rows = $this->iaDb->getAll($sql);
+
+        $this->_processValues($rows);
+
+        return $rows;
+
+    }
 
 	public function printPollResults($options)
 	{
@@ -77,7 +88,7 @@ class iaPolls extends abstractCore
 		$iaSmarty->assign('options', $options);
 		$iaSmarty->assign('colors', $colors);
 
-		return $iaSmarty->fetch(IA_PLUGINS . 'polls/templates/front/poll-results.tpl');
+		return $iaSmarty->fetch(IA_MODULES . 'polls/templates/front/poll-results.tpl');
 	}
 
 	/**

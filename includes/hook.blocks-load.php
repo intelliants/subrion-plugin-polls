@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -26,7 +26,7 @@
 
 if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('polls'))
 {
-	$iaPolls = $iaCore->factoryPlugin('polls', iaCore::FRONT, 'polls');
+	$iaPolls = $iaCore->factoryModule('poll', 'polls');
 
 	$polls = $iaPolls->getPolls(0, $iaCore->get('polls_count'));
 	$ip = $iaCore->util()->getIp();
@@ -47,5 +47,6 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('p
 		}
 
 		$iaView->assign('block_polls', $polls);
+        $iaView->add_css('_IA_URL_modules/polls/templates/front/css/block');
 	}
 }

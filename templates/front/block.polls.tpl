@@ -24,6 +24,6 @@
 		<a href="{$smarty.const.IA_URL}polls/">{lang key='show_polls'}</a>
 	</div>
 
-	{ia_print_js files='_IA_URL_plugins/polls/js/frontend/index'}
-	{ia_print_css files='_IA_URL_plugins/polls/templates/front/css/block'}
+	{ia_print_js files='_IA_URL_modules/polls/js/frontend/index'}
+
 {/if}

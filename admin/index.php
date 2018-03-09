@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 
-class iaBackendController extends iaAbstractControllerPluginBackend
+class iaBackendController extends iaAbstractControllerModuleBackend
 {
 	protected $_name = 'polls';
 
@@ -35,7 +35,7 @@ class iaBackendController extends iaAbstractControllerPluginBackend
 	protected $_tableOptions = 'poll_options';
 	protected $_tableBlogEntriesTags = 'blog_entries_tags';
 
-	protected $_pluginName = 'polls';
+    protected $_helperName = 'poll';
 
 	protected $_gridColumns = array('id', 'title', 'date_start', 'date_expire', 'status');
 	protected $_gridFilters = array('status' => self::EQUAL, 'title' => self::LIKE);
@@ -43,34 +43,33 @@ class iaBackendController extends iaAbstractControllerPluginBackend
 	protected $_phraseAddSuccess = 'poll_added';
 	protected $_phraseEditSuccess = 'poll_updated';
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->_path = IA_ADMIN_URL . $this->getModuleName() . IA_URL_DELIMITER;
+    }
 
-	public function __construct()
+    protected function _indexPage(&$iaView)
+    {
+        $iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/index');
+        $iaView->add_css('_IA_URL_modules/polls/templates/admin/css/manage');
+    }
+
+    protected function _setDefaultValues(array &$entry)
 	{
-		parent::__construct();
-
-		$this->setHelper($this->_iaCore->factoryPlugin($this->getPluginName(), iaCore::ADMIN, $this->getName()));
+		$entry['title'] = '';
+		$entry['date_expire'] = date(iaDb::DATETIME_FORMAT, time() + 7 * 24 * 60 * 60);
+		$entry['date_start'] = date(iaDb::DATETIME_FORMAT);
+		$entry['status'] = iaCore::STATUS_ACTIVE;
+		$entry['lang'] = $this->_iaCore->iaView->language;
 	}
 
-	protected function _indexPage(&$iaView)
-	{
-		$iaView->grid('_IA_URL_plugins/' . $this->getPluginName() . '/js/admin/index');
-	}
-
-	protected function _setPageTitle(&$iaView)
+	protected function _setPageTitle(&$iaView, array $entryData, $action)
 	{
 		if (in_array($iaView->get('action'), array(iaCore::ACTION_ADD, iaCore::ACTION_EDIT)))
 		{
 			$iaView->title(iaLanguage::get($iaView->get('action') . '_poll'));
 		}
-	}
-
-	protected function _setDefaultValues(array &$entry)
-	{
-		$entry['title'] = '';
-		$entry['date_expire'] = date(iaDb::DATE_FORMAT, time() + 7 * 24 * 60 * 60);
-		$entry['date_start'] = date(iaDb::DATE_FORMAT);
-		$entry['status'] = iaCore::STATUS_ACTIVE;
-		$entry['lang'] = $this->_iaCore->iaView->language;
 	}
 
 	protected function _entryDelete($id)
@@ -203,7 +202,7 @@ class iaBackendController extends iaAbstractControllerPluginBackend
 			: iaLog::ACTION_UPDATE;
 		$params = array(
 			'module' => 'polls',
-			'item' => 'polls',
+			'item' => 'poll',
 			'name' => $entry['title'],
 			'id' => $this->getEntryId(),
 		);
@@ -213,12 +212,16 @@ class iaBackendController extends iaAbstractControllerPluginBackend
 
 	protected function _assignValues(&$iaView, array &$entryData)
 	{
-		$options = $this->getHelper()->getOptions($this->getEntryId());
+	    parent::_assignValues($iaView,  $entryData);
+
+        $options = $this->getHelper()->getOptions($this->getEntryId());
 		$newOptions = array();
+
 		if (iaCore::ACTION_ADD == $iaView->get('action') && isset($_POST['newoptions']) && is_array($_POST['newoptions']))
 		{
 			$newOptions = array_filter($_POST['newoptions']);
 		}
+
 		$iaView->assign('options', $options);
 		$iaView->assign('newoptions', $newOptions);
 	}

@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -24,7 +24,7 @@
  *
  ******************************************************************************/
 
-$iaPolls = $iaCore->factoryPlugin('polls', iaCore::FRONT, 'polls');
+$iaPolls = $iaCore->factoryModule('poll', 'polls');
 
 if (iaView::REQUEST_JSON == $iaView->getRequestType())
 {
@@ -61,7 +61,8 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 		{
 			return iaView::errorPage(iaView::ERROR_NOT_FOUND);
 		}
-		$title = $poll['title'];
+		$title = $poll[0]['title'];
+
 		iaBreadcrumb::add(iaLanguage::get('polls'), IA_URL . 'polls/');
 		iaBreadcrumb::replaceEnd(iaLanguage::get('poll'), IA_SELF);
 

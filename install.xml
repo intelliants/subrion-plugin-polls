@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin name="polls">
+<module type="plugin" name="polls">
 	<title>Polls</title>
 	<summary>Polls functionality for Subrion CMS powered website.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.0.0</version>
-	<date>2016-11-30</date>
-	<compatibility>4.0.5</compatibility>
+	<version>4.2.0</version>
+	<date>2018-03-09</date>
+	<compatibility>4.2.0</compatibility>
+
+	<items>
+		<item>poll</item>
+	</items>
 
 	<adminpages>
 		<page name="polls" url="polls/" filename="index" menus="menu">Polls</page>
@@ -53,12 +57,23 @@
 	</phrases>
 
 	<blocks>
-		<block title="Polls" name="polls" collapsible="0" position="left" type="smarty" filename="block.polls"><![CDATA[]]></block>
+		<block title="Polls" name="polls" collapsible="0" position="left" type="smarty" filename="block.polls.tpl"><![CDATA[]]></block>
 	</blocks>
 
 	<hooks>
-		<hook name="phpCoreBeforePageDisplay" type="php" page_type="front" filename="plugins/polls/includes/hook.blocks-load.php"><![CDATA[]]></hook>
+		<hook name="phpCoreBeforePageDisplay" type="php" page_type="front" filename="hook.blocks-load.php"><![CDATA[]]></hook>
 	</hooks>
+
+	<fields_groups>
+		<group item="poll" name="general" title="General"><![CDATA[]]></group>
+	</fields_groups>
+
+	<fields>
+		<field name="title" item="poll" type="text" group="general" length="70" required="1" multilingual="1" adminonly="1">Title</field>
+		<field name="date_start" item="poll" type="date" group="general" required="0" timepicker="1" adminonly="1">Start Date</field>
+		<field name="date_expire" item="poll" type="date" group="general" required="0" timepicker="1" adminonly="1">Expire Date</field>
+		<!--<field name="option_title" item="poll" type="text" group="general" length="70" required="1" multilingual="1" adminonly="1">Options</field>-->
+	</fields>
 
 	<install>
 		<sql>
@@ -91,12 +106,11 @@ CREATE TABLE `{prefix}poll_options` (
 CREATE TABLE `{prefix}polls` (
 	`id` mediumint(7) unsigned NOT NULL auto_increment,
 	`title` varchar(50) NOT NULL,
-	`lang` varchar(25) NOT NULL,
+
 	`status` enum('inactive', 'active') NOT NULL default 'active',
 	`date_start` date NULL,
 	`date_expire` date NULL,
-	PRIMARY KEY  (`id`),
-	KEY `LANG` (`lang`)
+	PRIMARY KEY  (`id`)
 ) {mysql_version};
 			]]>
 		</sql>
@@ -109,4 +123,4 @@ DROP TABLE IF EXISTS `{prefix}poll_clicks`, `{prefix}poll_options`, `{prefix}pol
 			]]>
 		</sql>
 	</uninstall>
-</plugin>
+</module>
