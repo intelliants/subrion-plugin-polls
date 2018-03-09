@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2018 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -19,8 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
- *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
@@ -100,6 +99,7 @@ class iaPoll extends abstractModuleFront
     public function isVoted($id)
     {
         $ip = $this->iaCore->util()->getIp();
+
         $fromIp = $this->iaDb->exists('poll_id = :id AND ip = :ip AND (TO_DAYS(NOW()) - TO_DAYS(`date`)) <= 1',
             array('id' => $id, 'ip' => $ip), $this->_tableClicks);
 
