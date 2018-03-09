@@ -7,6 +7,22 @@ Ext.onReady(function () {
                 {name: 'date_start', title: _t('date_start'), width: 120, editor: 'date'},
                 {name: 'date_expire', title: _t('date_expire'), width: 120, editor: 'date'},
                 'status',
+                {name: 'title', title: _t('poll_result'), icon: 'image', click: function (record) {
+                        var id = record.get('id');
+                        var poll_title = record.get('title');
+                        $.get(intelli.config.admin_url + '/polls/results.json', {id: id}, function (response) {
+                            if (response) {
+                                var html = '';
+                                html += '<h4 class="text-center">' + poll_title + '</h4>';
+                                $.each(response.result, function (k, item) {
+                                    html += '<p class="text-center"><b>' + item.title + '</b> - ' + item.votes + '</p>';
+                                });
+                                $.fancybox.open(html);
+                            }
+                        });
+                    }
+                },
+
                 'update',
                 'delete'
             ],
