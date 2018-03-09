@@ -1,112 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin name="polls">
-	<title>Polls</title>
-	<summary>Polls functionality for Subrion CMS powered website.</summary>
-	<author>Intelliants LLC</author>
-	<contributor>Intelliants LLC</contributor>
-	<version>4.0.0</version>
-	<date>2016-11-30</date>
-	<compatibility>4.0.5</compatibility>
+<module type="plugin" name="polls">
+    <title>Polls</title>
+    <summary>Polls functionality for Subrion CMS powered website.</summary>
+    <author>Intelliants LLC</author>
+    <contributor>Intelliants LLC</contributor>
+    <version>4.2.0</version>
+    <date>2018-03-09</date>
+    <compatibility>4.2.0</compatibility>
 
-	<adminpages>
-		<page name="polls" url="polls/" filename="index" menus="menu">Polls</page>
-	</adminpages>
+    <items>
+        <item>poll</item>
+    </items>
 
-	<actions>
-		<action name="poll_add" url="polls/add/" icon="plus" pages="polls:read,polls:edit">Add Poll</action>
-		<action name="polls" url="polls/" icon="list" pages="polls:add,polls:edit">Polls</action>
-	</actions>
+    <adminpages>
+        <page name="polls" url="polls/" filename="index" menus="menu">Polls</page>
+    </adminpages>
 
-	<configgroup name="polls">Polls</configgroup>
+    <actions>
+        <action name="poll_add" url="polls/add/" icon="plus" pages="polls:read,polls:edit">Add Poll</action>
+        <action name="polls" url="polls/" icon="list" pages="polls:add,polls:edit">Polls</action>
+    </actions>
 
-	<config group="polls" name="polls" type="divider">Configuration</config>
-	<config group="polls" name="polls_count" type="text" private="0" description="Number of polls in a block">1</config>
-	<config group="polls" name="polls_count_page" type="text" private="0" description="Number of polls on a page">10</config>
-	<config group="polls" name="polls_google_chart" type="radio" values="0,1" private="0" description="Use Google Pie Chart">1</config>
-	<config group="polls" name="polls_rand" type="radio" values="0,1" private="0" description="Randomly rotate polls in a block">0</config>
+    <configgroup name="polls">Polls</configgroup>
 
-	<pages>
-		<page url="poll/" nofollow="1" name="poll" filename="index">Poll</page>
-		<page url="polls/" name="polls" filename="index">Polls</page>
-	</pages>
+    <config group="polls" name="polls" type="divider">Configuration</config>
+    <config group="polls" name="polls_count" type="text" private="0" description="Number of polls in a block">1</config>
+    <config group="polls" name="polls_count_page" type="text" private="0" description="Number of polls on a page">10</config>
+    <config group="polls" name="polls_google_chart" type="radio" values="0,1" private="0" description="Use Google Pie Chart">1</config>
+    <config group="polls" name="polls_rand" type="radio" values="0,1" private="0" description="Randomly rotate polls in a block">0</config>
 
-	<phrases>
-		<phrase category="admin" key="add_option">Add Option</phrase>
-		<phrase category="admin" key="add_poll">Add Poll</phrase>
-		<phrase category="admin" key="edit_poll">Edit Poll</phrase>
-		<phrase category="admin" key="error_poll_expire_date_less">Poll expiration date can not be older than a start date.</phrase>
-		<phrase category="admin" key="error_poll_options_required">You should have at least 2 unique poll options.</phrase>
-		<phrase category="admin" key="have_vote">Options have votes in database.</phrase>
-		<phrase category="admin" key="no_polls">No polls created.</phrase>
-		<phrase category="admin" key="poll_added">New poll has been created.</phrase>
-		<phrase category="admin" key="poll_options">Options</phrase>
-		<phrase category="admin" key="poll_updated">The poll has been updated.</phrase>
+    <pages>
+        <page url="poll/" nofollow="1" name="poll" filename="index">Poll</page>
+        <page url="polls/" name="polls" filename="index">Polls</page>
+    </pages>
 
-		<phrase category="common" key="date_expire">Expire date</phrase>
-		<phrase category="common" key="date_start">Start Date</phrase>
-		<phrase category="common" key="no_polls">No polls have been created by administrator.</phrase>
-		<phrase category="common" key="poll">Poll</phrase>
-		<phrase category="common" key="polls">Polls</phrase>
+    <phrases>
+        <phrase category="admin" key="add_option">Add Option</phrase>
+        <phrase category="admin" key="add_poll">Add Poll</phrase>
+        <phrase category="admin" key="edit_poll">Edit Poll</phrase>
+        <phrase category="admin" key="error_poll_expire_date_less">Poll expiration date can not be older than a start date.</phrase>
+        <phrase category="admin" key="error_poll_options_required">You should have at least 2 unique poll options.</phrase>
+        <phrase category="admin" key="have_vote">Options have votes in database.</phrase>
+        <phrase category="admin" key="no_polls">No polls created.</phrase>
+        <phrase category="admin" key="poll_added">New poll has been created.</phrase>
+        <phrase category="admin" key="poll_options">Options</phrase>
+        <phrase category="admin" key="poll_updated">The poll has been updated.</phrase>
 
-		<phrase category="frontend" key="show_polls">Show all polls</phrase>
-		<phrase category="frontend" key="total_votes">Total &lt;b&gt;{num}&lt;/b&gt; votes</phrase>
-	</phrases>
+        <phrase category="common" key="date_expire">Expire date</phrase>
+        <phrase category="common" key="date_start">Start Date</phrase>
+        <phrase category="common" key="no_polls">No polls have been created by administrator.</phrase>
+        <phrase category="common" key="poll">Poll</phrase>
+        <phrase category="common" key="polls">Polls</phrase>
 
-	<blocks>
-		<block title="Polls" name="polls" collapsible="0" position="left" type="smarty" filename="block.polls"><![CDATA[]]></block>
-	</blocks>
+        <phrase category="frontend" key="show_polls">Show all polls</phrase>
+        <phrase category="frontend" key="total_votes">Total &lt;b&gt;{num}&lt;/b&gt; votes</phrase>
+    </phrases>
 
-	<hooks>
-		<hook name="phpCoreBeforePageDisplay" type="php" page_type="front" filename="plugins/polls/includes/hook.blocks-load.php"><![CDATA[]]></hook>
-	</hooks>
+    <blocks>
+        <block title="Polls" name="polls" collapsible="0" position="left" type="smarty" filename="block.polls.tpl"><![CDATA[]]></block>
+    </blocks>
 
-	<install>
-		<sql>
-			<![CDATA[
+    <hooks>
+        <hook name="phpCoreBeforePageDisplay" type="php" page_type="front" filename="hook.blocks-load.php"><![CDATA[]]></hook>
+    </hooks>
+
+    <fields_groups>
+        <group item="poll" name="general" title="General"><![CDATA[]]></group>
+    </fields_groups>
+
+    <fields>
+        <field name="title" item="poll" type="text" group="general" length="70" required="1" multilingual="1" adminonly="1">Title</field>
+        <field name="date_start" item="poll" type="date" group="general" required="0" timepicker="1" adminonly="1">Start Date</field>
+        <field name="date_expire" item="poll" type="date" group="general" required="0" timepicker="1" adminonly="1">Expire Date</field>
+    </fields>
+
+    <install>
+        <sql>
+            <![CDATA[
 CREATE TABLE `{prefix}poll_clicks` (
-	`id` int(8) NOT NULL auto_increment,
-	`poll_id` mediumint(7) unsigned NOT NULL,
-	`ip` bigint(12) NOT NULL,
-	`date` date NOT NULL,
-	PRIMARY KEY  (`id`),
-	KEY `POLL` (`poll_id`),
-	KEY `IP` (`ip`)
+    `id` int(8) NOT NULL auto_increment,
+    `poll_id` mediumint(7) unsigned NOT NULL,
+    `ip` bigint(12) NOT NULL,
+    `date` date NOT NULL,
+    PRIMARY KEY  (`id`),
+    KEY `POLL` (`poll_id`),
+    KEY `IP` (`ip`)
 ) {mysql_version};
-			]]>
-		</sql>
-		<sql>
-			<![CDATA[
+            ]]>
+        </sql>
+        <sql>
+            <![CDATA[
 CREATE TABLE `{prefix}poll_options` (
-	`id` int(10) unsigned NOT NULL auto_increment,
-	`poll_id` mediumint(7) unsigned NOT NULL,
-	`title` varchar(50) NOT NULL,
-	`votes` int(10) unsigned NOT NULL,
-	PRIMARY KEY  (`id`),
-	KEY `POLL` (`poll_id`)
+    `id` int(10) unsigned NOT NULL auto_increment,
+    `poll_id` mediumint(7) unsigned NOT NULL,
+    `title` varchar(50) NOT NULL,
+    `votes` int(10) unsigned NOT NULL,
+    PRIMARY KEY  (`id`),
+    KEY `POLL` (`poll_id`)
 ) {mysql_version};
-			]]>
-		</sql>
-		<sql>
-			<![CDATA[
+            ]]>
+        </sql>
+        <sql>
+            <![CDATA[
 CREATE TABLE `{prefix}polls` (
-	`id` mediumint(7) unsigned NOT NULL auto_increment,
-	`title` varchar(50) NOT NULL,
-	`lang` varchar(25) NOT NULL,
-	`status` enum('inactive', 'active') NOT NULL default 'active',
-	`date_start` date NULL,
-	`date_expire` date NULL,
-	PRIMARY KEY  (`id`),
-	KEY `LANG` (`lang`)
-) {mysql_version};
-			]]>
-		</sql>
-	</install>
+    `id` mediumint(7) unsigned NOT NULL auto_increment,
+    `title` varchar(50) NOT NULL,
 
-	<uninstall>
-		<sql>
-			<![CDATA[
+    `status` enum('inactive', 'active') NOT NULL default 'active',
+    `date_start` date NULL,
+    `date_expire` date NULL,
+    PRIMARY KEY  (`id`)
+) {mysql_version};
+            ]]>
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <![CDATA[
 DROP TABLE IF EXISTS `{prefix}poll_clicks`, `{prefix}poll_options`, `{prefix}polls`;
-			]]>
-		</sql>
-	</uninstall>
-</plugin>
+            ]]>
+        </sql>
+    </uninstall>
+</module>

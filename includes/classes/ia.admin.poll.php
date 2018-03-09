@@ -24,25 +24,31 @@
  *
  ******************************************************************************/
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType() && $iaView->blockExists('polls')) {
-    $iaPolls = $iaCore->factoryModule('poll', 'polls');
+class iaPoll extends abstractModuleAdmin
+{
+    protected static $_table = 'polls';
+    protected $_tableOptions = 'poll_options';
+    protected $_tableClicks = 'poll_clicks';
 
-    $polls = $iaPolls->getPolls(0, $iaCore->get('polls_count'));
-    $ip = $iaCore->util()->getIp();
+    protected $_itemName = 'poll';
 
-    if ($polls) {
-        foreach ($polls as $k => $p) {
-            $polls[$k]['options'] = $iaPolls->getOptions($p['id']);
-            $polls[$k]['alreadyVoted'] = false;
-            if ($iaPolls->isVoted($p['id'], $ip)) {
-                $polls[$k]['results'] = $iaPolls->printPollResults($polls[$k]['options']);
-                unset($polls[$k]['options']);
+    protected $_activityLog = ['item' => 'poll'];
 
-                $polls[$k]['alreadyVoted'] = true;
-            }
-        }
+    protected $_statuses = [iaCore::STATUS_ACTIVE, iaCore::STATUS_INACTIVE];
 
-        $iaView->assign('block_polls', $polls);
-        $iaView->add_css('_IA_URL_modules/polls/templates/front/css/block');
+    public $dashboardStatistics = ['icon' => 'folder', 'url' => 'polls/'];
+
+    public function getOptions($id)
+    {
+        return $this->iaDb->keyvalue(array('id', 'title'), iaDb::convertIds($id, 'poll_id') . ' ORDER BY `id`', $this->_tableOptions);
+    }
+
+    public function delete($id)
+    {
+        $this->iaDb->delete(iaDb::convertIds($id), self::getTable());
+        $this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableOptions);
+        $this->iaDb->delete(iaDb::convertIds($id, 'poll_id'), $this->_tableClicks);
+
+        return true;
     }
 }
