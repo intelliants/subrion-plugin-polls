@@ -33,16 +33,12 @@ if (iaView::REQUEST_JSON == $iaView->getRequestType()) {
     if (empty($pollId) || empty($optionId)) {
         return iaView::errorPage(iaView::ERROR_NOT_FOUND);
     }
-    $affected = false;
 
     if (!$iaPolls->isVoted($pollId)) {
-        $affected = $iaPolls->addVote($pollId, $optionId);
-    }
-
-    if ($affected) // exists
-    {
-        $options = $iaPolls->getOptions($pollId);
-        $iaView->assign(array('results' => $iaPolls->printPollResults($options)));
+        if ($result = $iaPolls->addVote($pollId, $optionId)) {
+            $options = $iaPolls->getOptions($pollId);
+            $iaView->assign(array('results' => $iaPolls->printPollResults($options)));
+        }
     }
 }
 
@@ -93,6 +89,4 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
 
     $iaView->title($title);
     $iaView->display('polls');
-
-
 }
